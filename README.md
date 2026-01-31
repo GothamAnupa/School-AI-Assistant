@@ -31,10 +31,18 @@ I implemented an automated evaluation suite (`evaluate.py`) that uses **Llama 3.
 *Results are automatically logged to `evaluation_report.csv` for continuous monitoring.*
 
 ## 🛠️ Setup Instructions
-1. **Clone & Install:**
-2. pip install -r requirements.txt
-3. Create a `.env` file with your `GROQ_API_KEY`.
-4. Run ingestion: `python ingest_main.py`.
-5.Run Evaluation (Optional - Audits the system accuracy using RAGAS)
-'python evaluate.py'
-6. Start the bot: `streamlit run app.py`.
+
+1. **Clone the Project**
+   ```bash
+   git clone https://github.com/GothamAnupa/School-AI-Assistant.git
+   cd School-AI-Assistant
+2. Install Dependencies
+pip install -r requirements.txt
+3. Configure Environment Variables
+GROQ_API_KEY=your_actual_key_here
+4.Run Data Ingestion
+python ingest_main.py
+5.Run Evaluation (Optional)
+python evaluate.py
+6.Start the Assistant
+streamlit run app.py
