@@ -1,4 +1,5 @@
 import os
+import re
 
 import streamlit as st
 from dotenv import load_dotenv
@@ -156,6 +157,69 @@ def is_list_question(text):
     )
 
 
+def is_section_question(text):
+    lowered = text.lower()
+    return any(
+        phrase in lowered
+        for phrase in [
+            "problem statement",
+            "objective",
+            "objectives",
+            "solution",
+            "summary",
+            "abstract",
+            "introduction",
+        ]
+    )
+
+
+def extract_section_from_docs(docs, query):
+    lowered = query.lower()
+    section_map = {
+        "problem statement": [
+            r"problem statement",
+            r"statement of the problem",
+            r"problem",
+        ],
+        "objective": [r"^objective[s]?$", r"objectives"],
+        "solution": [r"^solution[s]?$", r"solution"],
+        "summary": [r"^summary$", r"summary"],
+        "abstract": [r"^abstract$", r"abstract"],
+        "introduction": [r"^introduction$", r"introduction"],
+    }
+    key = next((name for name in section_map if name in lowered), None)
+    if not key:
+        return None
+
+    patterns = section_map[key]
+    for doc in docs:
+        lines = [line.strip() for line in doc.page_content.splitlines() if line.strip()]
+        for idx, line in enumerate(lines):
+            line_l = line.lower()
+            if any(re.search(pattern, line_l) for pattern in patterns):
+                collected = [line]
+                for nxt in lines[idx + 1 : idx + 8]:
+                    nxt_l = nxt.lower()
+                    if any(
+                        re.fullmatch(pattern, nxt_l)
+                        for pattern in [
+                            r"problem statement",
+                            r"statement of the problem",
+                            r"objective[s]?",
+                            r"solution[s]?",
+                            r"summary",
+                            r"abstract",
+                            r"introduction",
+                        ]
+                    ):
+                        break
+                    collected.append(nxt)
+                section_text = "\n".join(collected).strip()
+                if len(section_text) > len(line):
+                    return section_text, doc.metadata or {}
+    return None
+
+
 st.markdown('<div class="title">AI Document Assistant</div>', unsafe_allow_html=True)
 st.markdown(
     '<div class="subtitle">Student-focused Q&A from notes, notices, and college links</div>',
@@ -226,31 +290,54 @@ if user_query := st.chat_input("Ask about your documents..."):
                 answer = "I don't know based on the indexed documents and links."
             else:
                 handled = False
-                institution_items, item_count = extract_institution_items(docs)
-                if institution_items and (
-                    is_count_question(user_query)
-                    or is_list_question(user_query)
-                    or "institution" in user_query.lower()
-                ):
-                    count_value = item_count or len(institution_items)
-                    if is_count_question(user_query):
-                        answer = f"There are {count_value} institutions mentioned in the link."
-                    else:
-                        answer = "The institutions mentioned are:\n" + "\n".join(
-                            f"- {item}" for item in institution_items
+
+                if is_section_question(user_query):
+                    section_hit = extract_section_from_docs(docs, user_query)
+                    if section_hit:
+                        section_text, meta = section_hit
+                        sources = (
+                            [meta.get("source")]
+                            if meta.get("source")
+                            else unique_sources(docs)
                         )
-                    sources = unique_sources(docs)
-                    source_text = (
-                        "\n".join(f"- {source}" for source in sources)
-                        if sources
-                        else "- Indexed sources"
-                    )
-                    answer = f"{answer}\n\nSources:\n{source_text}"
-                    st.markdown(answer)
-                    st.session_state.messages.append(
-                        {"role": "assistant", "content": answer}
-                    )
-                    handled = True
+                        source_text = (
+                            "\n".join(f"- {source}" for source in sources)
+                            if sources
+                            else "- Indexed sources"
+                        )
+                        answer = f"{section_text}\n\nSources:\n{source_text}"
+                        st.markdown(answer)
+                        st.session_state.messages.append(
+                            {"role": "assistant", "content": answer}
+                        )
+                        handled = True
+
+                if not handled:
+                    institution_items, item_count = extract_institution_items(docs)
+                    if institution_items and (
+                        is_count_question(user_query)
+                        or is_list_question(user_query)
+                        or "institution" in user_query.lower()
+                    ):
+                        count_value = item_count or len(institution_items)
+                        if is_count_question(user_query):
+                            answer = f"There are {count_value} institutions mentioned in the link."
+                        else:
+                            answer = "The institutions mentioned are:\n" + "\n".join(
+                                f"- {item}" for item in institution_items
+                            )
+                        sources = unique_sources(docs)
+                        source_text = (
+                            "\n".join(f"- {source}" for source in sources)
+                            if sources
+                            else "- Indexed sources"
+                        )
+                        answer = f"{answer}\n\nSources:\n{source_text}"
+                        st.markdown(answer)
+                        st.session_state.messages.append(
+                            {"role": "assistant", "content": answer}
+                        )
+                        handled = True
 
                 if not handled:
                     context = "\n\n".join(doc.page_content for doc in docs)
