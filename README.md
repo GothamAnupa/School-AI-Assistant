@@ -1,58 +1,40 @@
 # AI Document Assistant
 
-An AI-powered RAG app for students to ask factual questions from documents and college/school websites.
+An AI-powered RAG application that allows users to ask factual questions and extract insights from documents and websites.
 
 ## Purpose
 
-Built to help students quickly find answers about:
-- notes and study material
-- notices and circulars
-- exam schedules and results
-- admissions and course details
-- college and school websites
+Built to help anyone quickly find answers, summarize content, and extract key information from:
+* Personal or professional notes, documentation, and reference materials
+* Reports, data sheets, and official announcements
+* Project guidelines, schedules, and compliance documents
+* Public websites, blogs, and online documentation
 
 ## Features
 
-- Upload `.txt`, `.md`, `.log`, `.csv`, `.pdf`, and `.docx` files
-- Paste website links and query their content
-- Ask follow-up questions in chat
-- Get answers backed by source references
-- Reset or rebuild the knowledge base anytime
+* **Multi-Format Support:** Upload `.txt`, `.md`, `.log`, `.csv`, `.pdf`, and `.docx` files
+* **Web Scraping:** Paste website links and query their content directly
+* **Conversational Chat:** Ask follow-up questions with full chat history
+* **Source Citations:** Get accurate answers backed by clear references to the source material
+* **Dynamic Knowledge Base:** Reset or rebuild the indexed content anytime
 
 ## How It Works
 
-1. You upload files or paste links.
-2. The app extracts text and splits it into chunks.
-3. Chunks are stored in a vector database.
-4. Your question is matched against the indexed content.
-5. The model answers using only the retrieved context.
+1. **Ingestion:** Upload files or paste website links.
+2. **Processing:** The app extracts the text and splits it into manageable chunks.
+3. **Indexing:** Chunks are converted into embeddings and stored in a vector database.
+4. **Retrieval:** Your questions are matched against the indexed content to find relevant context.
+5. **Generation:** The model generates an answer using only the retrieved information to prevent hallucinations.
 
 ## Project Structure
 
-- `app.py` - Streamlit UI and chat flow
-- `src/knowledge.py` - loading, scraping, chunking, and retrieval
-- `src/guardrails.py` - basic input/output safety checks
-- `src/config.py` - model and storage settings
+* `app.py` - Streamlit UI and chat workflow
+* `src/knowledge.py` - Document loading, web scraping, chunking, and retrieval logic
+* `src/guardrails.py` - Input/output safety and validation checks
+* `src/config.py` - Model configurations and storage settings
 
 ## Run Locally
 
-1. `pip install -r requirements.txt`
-2. Create `.env` and set `GROQ_API_KEY=...`
-3. `streamlit run app.py`
-
-## Usage
-
-1. Add documents or links in the sidebar.
-2. Click `Build knowledge base`.
-3. Ask a question in the chat box.
-
-## Supported Sources
-
-- Local documents: `.txt`, `.md`, `.log`, `.csv`, `.pdf`, `.docx`
-- Web pages from pasted URLs
-
-## Notes
-
-- The app answers only from indexed sources.
-- It is designed mainly for student and academic use cases.
-- Streamlit Cloud uses a disabled file watcher to avoid transformer import noise.
+1. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
