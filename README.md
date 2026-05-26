@@ -36,5 +36,26 @@ Built to help anyone quickly find answers, summarize content, and extract key in
 ## Run Locally
 
 1. Install dependencies:
-   ```bash
+  
    pip install -r requirements.txt
+   
+2.Create a .env file and set your API key:
+  GROQ_API_KEY=your_api_key_here
+  
+3.Launch the application:
+ streamlit run app.py
+
+𝗨𝘀𝗮𝗴𝗲
+1.Add your documents or links in the sidebar.
+2.Click Build knowledge base.
+3.Type your question in the chat box and interact with your data.
+
+𝐒𝐮𝐩𝐩𝐨𝐫𝐭𝐞𝐝 𝐒𝐨𝐮𝐫𝐜𝐞𝐬
+1.Local documents: .txt, .md, .log, .csv, .pdf, .docx
+
+2.Web pages: Text content extracted from pasted URLs
+
+𝐍𝐨𝐭𝐞𝐬
+1.The application answers questions strictly based on the indexed sources.
+
+2.Streamlit Cloud uses a disabled file watcher configuration to optimize performance and reduce background warnings.
